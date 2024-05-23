@@ -35,3 +35,7 @@ class Plane:
         if self.y_position > 10:
             self.y_position = 10
 
+
+class Obstacle:
+    pass
+
