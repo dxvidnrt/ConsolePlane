@@ -1,9 +1,13 @@
+import scene
+
+
 class Plane:
-    def __init__(self, position: tuple, direction):
+    def __init__(self, scene_width, scene_height, position: tuple):
         self.x_position, self.y_position = position
-        self.direction = direction
         self.representation = ["   ~~~~ \\ \\", "         \\ \\", "|\\________\\ \\______", "|                   \\",
                                "| ________   _______/", "|/        / /", "         / /", "   ~~~~ / /"]
+        self.scene = scene.Scene(scene_width, scene_height)
+        self.scene.add_object(self.representation, position)
 
     def __str__(self):
         output = ""
@@ -17,23 +21,17 @@ class Plane:
 
     def fly(self, speed, time):
         for _ in range(time):
-            print(self)
             self.x_position += speed
-            print("\n\n\n\n\n\n")
 
     def move_y(self, direction):
+        self.scene.clear_scene()
         self.y_position += direction
-        if self.y_position < 0:
-            self.y_position = 0
-        if self.y_position > 10:
-            self.y_position = 10
+        self.scene.add_object(self.representation, (self.x_position, self.y_position))
 
     def move_x(self, direction):
+        self.scene.clear_scene()
         self.x_position += direction
-        if self.x_position < 0:
-            self.x_position = 0
-        if self.y_position > 10:
-            self.y_position = 10
+        self.scene.add_object(self.representation, (self.x_position, self.y_position))
 
 
 class Obstacle:
