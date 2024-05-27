@@ -17,8 +17,17 @@ class Scene:
             raise ValueError("Out of bound request")
         return self.scene[height][width]
 
-    def add_object(self, obj: List[List], offset: Tuple):
+    def add_object(self, obj: List[List], offset: Tuple[int, int]):
         offset_x, offset_y = offset
+        obj_height = len(obj)
+        obj_width = len(obj[0])
+
+        if offset_x + obj_width > self.width:
+            raise IndexError(f"Object exceeds scene bounds: access {offset_x+obj_width}, boundary {self.width}")
+
+        if offset_y + obj_height > self.height:
+            raise IndexError(f"Object exceeds scene bounds: access {offset_y+obj_height}, boundary {self.height}")
+
         for i, line in enumerate(obj):
             for j, pixel in enumerate(line):
                 self.scene[offset_y + i][offset_x + j] = pixel
@@ -26,13 +35,23 @@ class Scene:
     def clear_scene(self):
         self.scene = [['x' for _ in range(self.width)] for _ in range(self.height)]
 
+    def add_scene(self, other_scene):
+        if self.width != other_scene.width or self.height != other_scene.height:
+            raise ValueError("Scene dimensions must match")
+
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.scene[i][j] != 'x' and other_scene.scene[i][j] != 'x':
+                    raise ValueError(f"Collision at {i}, {j}")
+                elif other_scene.scene[i][j] != 'x':
+                    self.scene[i][j] = other_scene.scene[i][j]
+
 
 class SceneManager:
     def __init__(self, width, height):
         self.width = width
         self.height = height
         self.obstacles = []
-        self.plane = model.Plane(width, height, (4, 3))
         self.scene = Scene(width, height)
 
     def add_obstacle(self, obstacle):
@@ -65,6 +84,7 @@ class SceneManager:
             output_line += '|'
             print(output_line)
         print('-' * (self.width+2))
+
 
 
 
