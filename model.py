@@ -1,7 +1,7 @@
 import scene
 import keyboard
 import time
-import sys
+import os
 import main
 
 
@@ -32,8 +32,9 @@ class Plane:
             for direction in ['w', 'a', 's', 'd']:
                 if keyboard.is_pressed(direction):
                     self.move(direction, 1)
-                    time.sleep(1 / self.fps)
-                    while keyboard.is_pressed(direction):
+                    start_time = time.time()
+                    duration = 0.2
+                    while keyboard.is_pressed(direction) and time.time() < start_time + duration:
                         time.sleep(0.01)  # Wait until the key is released
             time.sleep(0.05)  # Adjust delay as needed
 
@@ -42,17 +43,22 @@ class Plane:
         if direction not in controls:
             return
         self.scene.clear_scene()
-        if direction is 'w':
+        if direction == 'w':
             self.y_position -= speed
-        if direction is 's':
+        if direction == 's':
             self.y_position += speed
-        if direction is 'a':
+        if direction == 'a':
             self.x_position -= speed
-        if direction is 'd':
+        if direction == 'd':
             self.x_position += speed
         self.scene.add_object(self.representation, (self.x_position, self.y_position))
 
 
 class Obstacle:
-    pass
+    def __init__(self, scene_width, scene_height, pos, diameter):
+        self.x_position, self.y_position = pos
+        self.diameter = diameter
+        self.representation = [['-' for _ in range(diameter)] for _ in range(diameter)]
+        self.scene = scene.Scene(scene_width, scene_height)
+        self.scene.add_object(self.representation, pos)
 

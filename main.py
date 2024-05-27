@@ -5,16 +5,15 @@ import sys
 import keyboard
 
 running = True
+threads = []
 
 
 def stop_all():
-    print("Stop all is called")
     global running
     running = False
     for thread in threading.enumerate():
-        if thread != threading.current_thread():  # Skip the current thread
+        if thread.ident in threads and thread.is_alive():
             thread.join()
-    sys.exit()
 
 
 if __name__ == '__main__':
@@ -25,17 +24,29 @@ if __name__ == '__main__':
     scene_width = 90
     scene_height = 20
     fps = 60
-    scene_manager = scene.SceneManager(scene_width, scene_height, fps)
+    tick_speed = 1
+    scene_manager = scene.SceneManager(scene_width, scene_height, fps, tick_speed)
     plane = model.Plane(90, 20, (0, scene_height // 2), fps)
     scene_manager.add_plane(plane)
     update_thread = threading.Thread(target=scene_manager.run)
+    threads.append(update_thread.ident)
     fly_thread = threading.Thread(target=plane.fly)
+    threads.append(fly_thread.ident)
 
     # Start the threads
     update_thread.start()
     fly_thread.start()
 
     # Wait for the threads to finish
-    update_thread.join()
-    fly_thread.join()
+    try:
+        update_thread.join()
+        fly_thread.join()
+    except KeyboardInterrupt:
+        print("Keyboard interrupt")
+        stop_all()
+        sys.exit()  # Exit the program after stopping the threads
+
+        # Program finished, should exit here
+    print("Calling sys exit")
+    sys.exit()
 
