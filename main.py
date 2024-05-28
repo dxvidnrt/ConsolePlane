@@ -42,11 +42,9 @@ if __name__ == '__main__':
         update_thread.join()
         fly_thread.join()
     except KeyboardInterrupt:
-        print("Keyboard interrupt")
         stop_all()
         sys.exit()  # Exit the program after stopping the threads
 
         # Program finished, should exit here
-    print("Calling sys exit")
     sys.exit()
 
