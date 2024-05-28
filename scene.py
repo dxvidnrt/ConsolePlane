@@ -45,8 +45,8 @@ class Scene:
         for i in range(self.height):
             for j in range(self.width):
                 if self.scene[i][j] != 'x' and other_scene.scene[i][j] != 'x':
-                    raise ValueError(f"Collision at {i}, {j}.\n Value in scene: {self.scene[i][j]}.\n"
-                                     f"Value in otherScene: {other_scene.scene[i][j]}")
+                    print("You crashed!")
+                    main.stop_all()
                 elif other_scene.scene[i][j] != 'x':
                     self.scene[i][j] = other_scene.scene[i][j]
 
@@ -78,6 +78,7 @@ class SceneManager:
         self.fps = fps
         self.plane = None
         self.tick_speed = tick_speed
+        self.score = 0
 
     def add_plane(self, plane):
         self.plane = plane
@@ -85,12 +86,13 @@ class SceneManager:
     def run(self):
         self.scene.clear_scene()
         spawn_time = time.time()
-        spawn_speed = random.uniform(2, 8)
+        spawn_speed = random.uniform(5, 7)
         tick_time = time.time()
         while main.running:
             os.system('cls' if os.name == 'nt' else 'clear')
             if time.time() > tick_time + (1. / self.tick_speed):
                 tick_time = time.time()
+                self.score += 1
                 for obst in self.obstacles:
                     obst.scene.move_left()
             if time.time() > spawn_time + spawn_speed:
@@ -103,7 +105,6 @@ class SceneManager:
     def update_scene(self):
         self.scene.clear_scene()
         if self.plane is not None:
-            print("Add plane")
             self.scene.add_scene(self.plane.scene)
         for obst in self.obstacles:
             self.scene.add_scene(obst.scene)
@@ -116,6 +117,7 @@ class SceneManager:
         Create scene object. Add an extra layer around it.
         :return:
         """
+        print(f"Score: {self.score}")
         print('-' * (self.width + 2))
         for height in range(self.height):
             output_line = '|'
@@ -129,9 +131,22 @@ class SceneManager:
         print('-' * (self.width + 2))
 
     def spawn_obstacle(self):
-        diameter = 3
-        y_pos, x_pos = (random.randint(0+diameter, self.height-diameter), (self.width//2) +
-                        random.randint(0+diameter, (self.width//2)-diameter))
+        diameter = 4
+        object_seperatation = 2
+        tries = 0
+        max_tries = 10
+        spawned = False
+        while not spawned:
+            if tries > max_tries:
+                return
+            tries += 1
+            spawned = True
+            y_pos, x_pos = (random.randint(0+diameter, self.height-diameter), (self.width//2) +
+                            random.randint(0+diameter, (self.width//2)-diameter))
+            for i in range(-1*object_seperatation, diameter + object_seperatation):
+                for j in range(-1 * object_seperatation, diameter + object_seperatation):
+                    if self.scene.get_pos(min(self.width-1, max(0, x_pos+i)), min(self.height-1, max(0, y_pos+j))) != 'x':
+                        spawned = False
         obst = model.Obstacle(self.width, self.height, (x_pos, y_pos), diameter)
         self.obstacles.append(obst)
 

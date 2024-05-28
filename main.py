@@ -24,7 +24,7 @@ if __name__ == '__main__':
     scene_width = 90
     scene_height = 20
     fps = 60
-    tick_speed = 1
+    tick_speed = 4
     scene_manager = scene.SceneManager(scene_width, scene_height, fps, tick_speed)
     plane = model.Plane(90, 20, (0, scene_height // 2), fps)
     scene_manager.add_plane(plane)
